@@ -69,7 +69,7 @@ import pickle
 p = pickle.dumps(complex_obj)
 {"response_field":p}
 ```
-Still requires decoding and recreating the complex object on the client side, which is failure prone. Instead, the map data response only serializes the numerical data, and inludes metadata to recreate the map on the client side. The numerical data is encoded as a Python list, with serialization, compression, and encryption left to the backend. 
+...still requires decoding and recreating the complex object on the client side, which is failure prone. Instead, the map data response only serializes the numerical data, and inludes metadata to recreate the map on the client side. The numerical data is encoded as a Python list, with serialization, compression, and encryption left to the backend. 
 
 ```Python
 {"uuid":None, # unique identifier
