@@ -14,7 +14,7 @@
 - Scene requests: Client wants to draw a scene
 	
 ### Response Types
- - Program statuss: Server reports on program progress
+ - Program status: Server reports on program progress
  - Result responses: Server provides program results
  - Scene responses: Server defines a particular scene.
  
