@@ -102,6 +102,15 @@ Still requires decoding and recreating the complex object on the client side, wh
 ```
 #### Scenes
 A scene is a list of objects to display in a client viewer, and optionally information about depiction and focus. The server can manage a complex graph of scenes that may be generated during data processing, but it only serves one scene to the client at a time. If the client is a molecular graphics program, it is responsible for translating the scene into an image. 
+
+##### Scene requests
+In the Pyro5 implementation, scene requests can be performed using method calls. ie:
+```Python
+server.get_scene_from_results(uuid='0b2f43a6-1c09-11ec-a1ff-8cc68118d742') # if you know the result uuid
+server.get_scene_current() # if you want the server to decide what scene is relevant
+```
+##### Scene responses
+
 ```Python
 {"uuid":None,
 "data_type":"scene",
