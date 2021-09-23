@@ -52,7 +52,7 @@ Phenix programs return results in different ways. Files can be structured in a p
 #### Model data
 Models are serialized as strings of molecular file types (pdb,cif,mol,etc). This is simple and widely supported by potential clients. Compression is left to the serializer backend.
 ```
-{"uuid":None, # unique identifier
+{"uuid":None, # unique identifier common between server/client
 "data_type":"model",
 "name":"model", # Display name for this model.
 "read_filepath":"", # Filepath if sharing a filesystem
