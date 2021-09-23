@@ -100,7 +100,7 @@ p = pickle.dumps(complex_obj)
 "contents":None #bytes representation, should be a last resort
 "serializer":"") # pickle, joblib, msgpack, etc
 ```
-#### Scenes
+## Scenes
 A scene is a list of objects to display in a client viewer, and optionally information about depiction and focus. The server can manage a complex graph of scenes that may be generated during data processing, but it only serves one scene to the client at a time. If the client is a molecular graphics program, it is responsible for translating the scene into an image. 
 
 ##### Scene requests
