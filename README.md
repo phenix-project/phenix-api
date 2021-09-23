@@ -27,7 +27,7 @@
   - Generic text file: Useful for .eff, .phil for example
   - Generic binary file: Useful for flex arrays, numpy arrays, etc
  
-## Examples: Showing default values, Opt indicates optional
+## Definitions
 
 #### Program request
 ```
