@@ -32,9 +32,9 @@
 #### Program request
 ```Python
 {"program_name":"",
- "files":[],
- "args":[],
- "kwargs":{}}
+ "files":[], # a list of files, structured according to the api defined below
+ "args":[],  # a list of positional command line arguments
+ "kwargs":{}}# a dictionary of command line keyword arguments
 ```
 #### Results response
 Phenix programs return results in different ways. Files can be structured in a predictable way (see below). Many programs return results as an unstructured group_args object of key,value pairs. Many results can be converted into a dictionary and returned in the "results" field, but some are complex cctbx objects. In the majority of cases, the client is most interested in the file results, or in a scene response. 
