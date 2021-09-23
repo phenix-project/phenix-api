@@ -83,8 +83,8 @@ Still requires decoding and recreating the complex object on the client side, wh
 "shape":tuple(), # the shape of the map in each dimension
 "pixel_sizes":tuple(),# the pixel sizes for each dimension (angstrom)
 "shift_cart":tuple()} # the cartesian shift of the map if applicable
+```
 
-```Python
 #### MTZ Files
 - *TODO*
 
