@@ -1,12 +1,12 @@
 # Phenix API Documentation
 
 - The goal of this documentation is to define a common interface to run Phenix from multiple frontends (GUIs, notebooks, visualization software, etc.) 
-- The reference implementation uses [Pyro5](https://pyro5.readthedocs.io/en/latest/), which provides a huge number of features ready to use. Some highlights:
+- The reference implementation uses [Pyro](https://pyro5.readthedocs.io/en/latest/), which provides a huge number of features ready to use. Some highlights:
 	- Pure Python, requests are executed as method calls
-	- Different serializers (serpent, json, marshal, msgpack)
+	- Different serializers (serpent, json, marshal, pickle, msgpack)
 	- IPv4, IPv6 or Unix domain sockets
 	- Optional secure connections via SSL/TLS 
- - Whenever possible, logic should reside on the server side. For example, after a program completes the server should offer a relevant scene. The client does not need to contain logic to anticipate and request all the possible results.
+ - The goal is to have clearly defined requests and responses. The [Stripe](https://stripe.com/docs/api) API is a good example of a well documented API. In that API the responses are JSON encoded. Because we are using Pyro, it makes sense for responses to be plain Python dictionaries. Different backend serializers can then be used interchangeably, which where JSON would be one option.
  
 ### Request Types
 - Program requests: Client wants to run a Phenix program
@@ -19,7 +19,7 @@
  - Scene responses: Server defines a particular scene.
  
  ### Data Types
- Whenever possible, the data should be standard Python data types, which are easily serialized by whichever backend being used. However, for more exotic data types, it is necessary to make them an explicit part of the API so that both client and server can anticipate them and know how to encode/decode the data structure.
+ Whenever possible, the data should be standard Python data types, which are easily serialized by whichever backend being used. However, for more exotic data types, it is necessary to make them an explicit part of the API so that both client and server can anticipate them and know how to encode/decode the data structure. 
  
   - Model file: Molecular structure
   - Map file: 3D volumetric data
@@ -29,25 +29,7 @@
  
 # Definitions
 
-#### Program request
-```Python
-{"program_name":"",
- "files":[], # a list of files, structured according to the api defined below
- "args":[],  # a list of positional command line arguments
- "kwargs":{}}# a dictionary of command line keyword arguments
-```
-#### Results response
-Phenix programs return results in different ways. Files can be structured in a predictable way (see below). Many programs return results as an unstructured group_args object of key,value pairs. Many results can be converted into a dictionary and returned in the "results" field, but some are complex cctbx objects. In the majority of cases, the client is most interested in the file results, or in a scene response. 
-```Python
-{"uuid": # unique identifier for the run
-"status":"" # One of running, finished, failed
-"program_request":{}, # the original request object
-"stdout":"",
-"stderr":"",
-"log":"",
-"files":[],
-"results":{}}
-```
+
 
 #### Model data
 Models are serialized as strings of molecular file types (pdb,cif,mol,etc). This is simple and widely supported by potential clients. Compression is left to the serializer backend.
