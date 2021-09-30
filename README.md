@@ -6,7 +6,7 @@
 	- Different serializers (serpent, json, marshal, pickle, msgpack)
 	- IPv4, IPv6 or Unix domain sockets
 	- Optional secure connections via SSL/TLS 
- - The goal is to have clearly defined requests and responses. The [Stripe](https://stripe.com/docs/api) API is a good example of a well documented API. In that API the responses are JSON encoded. Because we are using Pyro, it makes sense for responses to be plain Python dictionaries. Different backend serializers can then be used interchangeably, which where JSON would be one option.
+ - The goal is to have clearly defined requests and responses. The [Stripe](https://stripe.com/docs/api) API is a good example of a well documented API. In that API the responses are JSON encoded. Because we are using Pyro, it makes sense for responses to be plain Python dictionaries. Different backend serializers can then be used interchangeably, where JSON would be one option.
  
 # Overview
 ### Request Types
@@ -30,24 +30,24 @@
  
 # Definitions and Examples
 #### Model data
-A model api response should include all the information necessary to recreate a model on either endpoint. The simplest way to do this is to use one of the existing molecular file formats, or if applicable, a database retrieval. If the server and client do not share a filesystem, the file contents can be encoded as a string.  
+A model api response should include all the information necessary to recreate a model on either endpoint. The simplest way to do this is to use one of the existing molecular file formats, or if applicable, a database retrieval. If the server and client do not share a filesystem, the file contents can be encoded as a string. As an example, we will use the file here: servers/phenix-pyro/tests/1aba_pieces.pdb  
 ```Python
 {
-    "id":None
+    "id":"8a0bf6f5-f9e1-49ba-91e2-8ef5c67b2911"
     "object": "model",
-    "name": "model",
-    "database": {"pdb": None},
+    "name": "1aba_pieces",						# The name the client should use to display this model
+    "database": {"pdb": "1aba"},                                        # Database is relevant because this corresponds to a published model. 
     "source": {
-      "read_filepath": None,
+      "read_filepath": "servers/phenix-pyro/tests/1aba_pieces.pdb",
       "read_url": None,
-      "fetch": None,
+      "fetch": None,							# Fetch is not relevant, because this is a truncated version of the full model
       "filestring": {
         "string": None,
         "suffix": ".pdb"
       },
     },
     "destination": {
-      "write_filepath": None,
+      "write_filepath": None,					        # Write filepath is not specified
       "suffix": ".mmcif"
     },
   }
