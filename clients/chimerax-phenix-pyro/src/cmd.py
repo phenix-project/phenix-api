@@ -1,40 +1,7 @@
 # vim: set expandtab ts=4 sw=4:
 
 from chimerax.core.commands import (
-    CmdDesc, StringArg, IntArg, BoolArg, FloatArg, Float3Arg,
-)
-from chimerax.atomic import (
-    AtomicStructure, AtomicStructuresArg,
-    AtomsArg, ResiduesArg,
-)
-from chimerax.map import MapArg
-from chimerax.core.errors import UserError
-
-from chimerax.atomic import (
-    AtomicStructure, AtomicStructuresArg,
-    AtomsArg, ResiduesArg,
-)
-from chimerax.std_commands import clip
-from chimerax.core.commands import run
-
-import rdkit
-from rdkit import Chem
-from rdkit.Chem import rdDistGeom
-from rdkit.Chem import AllChem
-from rdkit.Chem import rdMolAlign
-
-import tempfile
-import json
-import copy
-from math import ceil, log10
-import Pyro4
-import Pyro4.naming
-
-import Pyro5
-import Pyro5.client
-import Pyro5.api
-
-PYRO_VERSION = 4 # hardcoded for now
+    CmdDesc, StringArg, IntArg, BoolArg, FloatArg, Float3Arg)
 
 
 def phenix_connect(session,debug=False,uri=None):
