@@ -44,19 +44,19 @@ model_api.payload
 {
     "id":"8a0bf6f5-f9e1-49ba-91e2-8ef5c67b2911"  # A unique identifier for this model in the Client/Server session
     "object": "model",
-    "name": "1aba_pieces",	                 # The name the client should use to display this model
-    "database": {"pdb": "1aba"},                 # Database is relevant because this corresponds to a published model. 
+    "name": "1aba_pieces",	                  
+    "database": {"pdb": "1aba"},                 
     "source": {
       "read_filepath": "servers/phenix-pyro/tests/1aba_pieces.pdb",
       "read_url": None,
-      "fetch": None,			         # Fetch is not relevant, because this is a truncated version of the full model
+      "fetch": None,			       
       "filestring": {
         "string": None,
         "suffix": ".pdb"
       },
     },
     "destination": {
-      "write_filepath": None,			 # Write filepath is not specified
+      "write_filepath": None,			
       "suffix": ".mmcif"
     },
   }
