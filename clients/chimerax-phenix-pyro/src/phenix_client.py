@@ -136,9 +136,19 @@ class PhenixClient():
         if log:
           self.session.logger.info("Loading scene:"+scene["id"])
 
-        for data_payload in scene["data"]:
-          if data_payload["id"] not in self.data:
-            if data_payload["object"] in ["model","map"]:
+        for data in scene["data"]:
+          data_id = data["id"]
+          data_type = data["object"]
+          data_payload = None
+          if data_id in self.data: # check local cache
+            pass
+          else:
+            if self.server.has_data(id=data_id): # check server
+              data_payload = self.server.retrieve_data(id=data_id)
+            else:
+              data_payload = None # server doesn't have the data, an error
+          if data_payload is not None:
+            if data_type in ["model","map"]:
               self.add_model(data_payload,log=self.log)
               self.data[data_payload["id"]] = data_payload
 
