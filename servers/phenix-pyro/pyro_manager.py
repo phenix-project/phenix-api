@@ -2,6 +2,7 @@ import sys
 import threading
 import socket
 import logging
+from io import StringIO
 
 if sys.version_info.major == 2:
   import Pyro4
@@ -10,6 +11,7 @@ if sys.version_info.major == 2:
   from Pyro4.naming import NameServerDaemon, BroadcastServer
   log = logging.getLogger("Pyro4.naming")
   PYRO_VERSION = 4
+  from contextlib2 import redirect_stderr, redirect_stdout
 
 else:
   import Pyro5
@@ -20,6 +22,7 @@ else:
   import Pyro5.api
   log = logging.getLogger("Pyro5.nameserver")
   PYRO_VERSION = 5
+  from contextlib import redirect_stderr, redirect_stdout
 
 def get_ns_daemon(host=None,
                         port=None,
@@ -74,12 +77,7 @@ def get_ns_daemon(host=None,
   else:
     print("URI = %s" % nsUri)
   return daemon, bcserver
-  # try:
-  #   daemon.requestLoop()
-  # finally:
-  #   daemon.close()
-  #   if bcserver is not None:
-  #     bcserver.close()
+
 
 class PyroManager:
   """
@@ -110,11 +108,11 @@ class PyroManager:
       if sys.version_info.major == 2:
         self._ns_daemon, self._bcserver = get_ns_daemon()
         t = threading.Thread(target=self._ns_daemon.requestLoop)  # py2
-        t.setDaemon(False)
+        t.setDaemon(True)
       else:
         self._ns_daemon, self._bcserver = get_ns_daemon()
         t = threading.Thread(target=self._ns_daemon.requestLoop,
-                             daemon=False)  # py3
+                             daemon=True)  # py3
       t.start()
       self._ns_thread = t
 
@@ -122,24 +120,26 @@ class PyroManager:
     if sys.version_info.major == 2:
       self.daemon = Pyro4.Daemon()  # py2
       t = threading.Thread(target=self.daemon.requestLoop)
-      t.setDaemon(False)
+      t.setDaemon(True)
     else:
       self.daemon = Pyro5.server.Daemon()  # py3
-      t = threading.Thread(target=self.daemon.requestLoop, daemon=False)
+      t = threading.Thread(target=self.daemon.requestLoop, daemon=True)
     t.start()
     self._daemon_thread = t
 
   def __del__(self):
-    if hasattr(self,"_daemon_thread"):
-      self.daemon.shutdown()
-      del self.daemon
-    if hasattr(self,"_ns_daemon"):
-      self._ns_daemon.shutdown()
-      self._ns_daemon.close()
-      del self._ns_daemon
-    if hasattr(self,"_bcserver") and self._bcserver is not None:
-        self._bcserver.close()
-        del self._bcserver
+    with redirect_stdout(StringIO()) as out:
+      with redirect_stderr(StringIO()) as err: # py2 try to supress errors
+        if hasattr(self,"daemon") and self.daemon is not None:
+            self.daemon.shutdown()
+            del self.daemon
+        if hasattr(self,"_ns_daemon") and self._ns_daemon is not None:
+          self._ns_daemon.shutdown()
+          self._ns_daemon.close()
+          del self._ns_daemon
+        if hasattr(self,"_bcserver") and self._bcserver is not None:
+            self._bcserver.close()
+            del self._bcserver
 
   def register_service(self, service, prefix=""):
     """

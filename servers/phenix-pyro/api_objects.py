@@ -11,28 +11,40 @@ if sys.version_info.major == 2:
 else:
   from pathlib import Path
 
+"""
+Api objects are classes used to convert objects into a standard API representation
+Each class has a template with defaults, and accepts a dictionary
+upon initialization with customized API values. The payload property returns
+a dictionary that can be transmitted as an alternative to the object.
+
+
+Example: Want the API representation of mmtbx.model.manager object 'model'
+
+payload_init = {"name":"model 1",
+                "source":{
+                   "read_filepath":"/home/user/Documents/model1.pdb",
+                   }
+                }
+model_api = ModelAPI(model,payload_init=payload_init)
+payload = model_api.payload # a dict to send somewhere
+"""
 
 
 class ObjectAPI(object):
   _payload_template = {"id": None,
                        "object": "object"}
 
-  def __init__(self, *args, **kwargs):
-
+  def __init__(self, *args,**kwargs):
+    if "payload_init" in kwargs:
+      payload_init = kwargs["payload_init"]
+    else:
+      payload_init = {}
     if len(args) == 0:
       self.obj = None
     elif len(args) == 1:
       self.obj = args[0]
-    else:
-      print("args:", args)
-      raise ValueError("Pass one positional argument, the object")
 
-    self.payload_working = {}
-
-    # deal with kwargs
-    for key, value in kwargs.items():
-      if key in self.payload_template:
-        self.payload_working[key] = value
+    self.payload_working = payload_init
 
     if "id" not in self.payload_working:
       self.payload_working["id"] = str(uuid4())
@@ -95,11 +107,12 @@ class ModelAPI(ObjectAPI):
 
   def __init__(self, *args, **kwargs):
     super(ModelAPI, self).__init__(*args, **kwargs)
-
-    # deal with kwargs
-    for key, value in kwargs.items():
-      if key in self.payload_template:
-        self.payload_working[key] = value
+    if "payload_init" in kwargs:
+      payload_init = kwargs["payload_init"]
+    else:
+      payload_init = {}
+    # merge in init values
+    self.payload_working = self.mergedicts(self.payload_working,payload_init)
 
     # deal with the object type
     if self.obj is not None:
@@ -132,9 +145,11 @@ class ModelAPI(ObjectAPI):
     except KeyError:
       pass
 
-    # decide if we need to represent the model as a string
+    # merge in default template values
     self.payload_working = self.mergedicts(self.payload_template,
                                            self.payload_working)
+
+    # decide if we need to represent the model as a string
     string_needed = False
     if (
             self.payload_working["source"]["read_filepath"] == None and
@@ -143,7 +158,8 @@ class ModelAPI(ObjectAPI):
     ):
       string_needed = True
     if string_needed:
-      self.payload_working["source"]["filestring"]["string"] = self.str_rep
+      if self.obj is not None:
+        self.payload_working["source"]["filestring"]["string"] = self.str_rep
 
   @property
   def str_rep(self):
@@ -183,13 +199,15 @@ class MapAPI(ObjectAPI):
 
   known_suffixes = [".ccp4", ".mrc", ".map"]
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, *args,**kwargs):
     super(MapAPI, self).__init__(*args, **kwargs)
+    if "payload_init" in kwargs:
+      payload_init = kwargs["payload_init"]
+    else:
+      payload_init = {}
+    # merge in initialized values
+    self.payload_working = self.mergedicts(self.payload_working,payload_init)
 
-    # deal with kwargs
-    for key, value in kwargs.items():
-      if key in self.payload_template:
-        self.payload_working[key] = value
 
     # deal with the object type
     if self.obj is not None:
@@ -207,9 +225,10 @@ class MapAPI(ObjectAPI):
     except KeyError:
       pass
 
-    # decide if we need to represent the map as a list
+   # merge in defaults
     self.payload_working = self.mergedicts(self.payload_template,
                                            self.payload_working)
+    # decide if we need to represent the map as a list
     list_needed = False
     if (
             self.payload_working["source"]["read_filepath"] == None and
@@ -218,11 +237,12 @@ class MapAPI(ObjectAPI):
     ):
       list_needed = True
     if list_needed:
-      self.payload_working["source"]["list"]["list_rep"] = self.list_rep
-      self.payload_working["source"]["list"][
-        "shape"] = self.obj.map_data().all()
-      self.payload_working["source"]["list"][
-        "pixel_sizes"] = self.obj.pixel_sizes()
+      if self.obj is not None:
+        self.payload_working["source"]["list"]["list_rep"] = self.list_rep
+        self.payload_working["source"]["list"][
+          "shape"] = self.obj.map_data().all()
+        self.payload_working["source"]["list"][
+          "pixel_sizes"] = self.obj.pixel_sizes()
 
   @property
   def list_rep(self):
@@ -265,15 +285,20 @@ class SceneAPI(ObjectAPI):
                           "lighting": "full"}
 
   @classmethod
-  def from_copy(cls,payload,**kwargs):
-    scene = cls(**kwargs)
+  def from_copy(cls,payload,payload_init={}):
+    scene = cls((),payload_init=payload_init)
     scene_id = scene.payload["id"]
     scene.payload_working = scene.mergedicts(scene.payload_template,payload)
     scene.payload_working["id"] = scene_id
     return scene
 
   @classmethod
-  def from_objects(cls, *objects, **kwargs):
+  def from_objects(cls, *objects,**kwargs):
+    if "payload_init" in kwargs:
+      payload_init = kwargs["payload_init"]
+    else:
+      payload_init = {}
+
     maps = []
     models = []
     for obj in objects:
@@ -291,10 +316,15 @@ class SceneAPI(ObjectAPI):
     model_api_objects = [ModelAPI(obj) for obj in models]
     map_api_objects = [MapAPI(obj) for obj in maps]
     api_objects = tuple(model_api_objects + map_api_objects)
-    return cls.from_api_objects(*api_objects, **kwargs)
+    return cls.from_api_objects(*api_objects, payload_init=payload_init)
 
   @classmethod
-  def from_api_objects(cls, *api_objects, **kwargs):
+  def from_api_objects(cls, *api_objects,**kwargs):
+    if "payload_init" in kwargs:
+      payload_init = kwargs["payload_init"]
+    else:
+      payload_init = {}
+
     for api_object in api_objects:
       names = [t.__name__ for t in type(api_object).mro()]
       if "ObjectAPI" not in names:
@@ -302,49 +332,33 @@ class SceneAPI(ObjectAPI):
                          api_object.__class__)
 
     payloads = (api_object.payload for api_object in api_objects)
-    return cls.from_api_payloads(*payloads, **kwargs)
+    return cls.from_api_payloads(*payloads, payload_init=payload_init)
 
   @classmethod
   def from_api_payloads(cls, *data_api_payloads, **kwargs):
-    if "include_all_data" not in kwargs or kwargs["include_all_data"] == True:
-      data = (payload for payload in data_api_payloads)
+    if "payload_init" in kwargs:
+      payload_init = kwargs["payload_init"]
     else:
-      data = ({"id": payload["id"], "object": payload["object"]} for payload in
-              data_api_payloads)
-    return cls(*data, **kwargs)
+      payload_init = {}
 
-  def __init__(self, *data, **kwargs):
+    data = ({"id": payload["id"], "object": payload["object"]} for payload in
+            data_api_payloads)
+    return cls(data, payload_init=payload_init)
 
-    reserved_kwargs = ["colors", "styles", "focus", "environment", "data"]
-    reserved_kwargs = {key: value for key, value in kwargs.items() if
-                       key in reserved_kwargs}
-    kwargs = {key: value for key, value in kwargs.items() if
-              key not in reserved_kwargs}
-    super(SceneAPI, self).__init__(None, **kwargs)
+  def __init__(self, data, payload_init={},apply_defaults=True):
+    # data must be a tuple. py2/3 issues
+    super(SceneAPI, self).__init__(None, payload_init={})
 
-    # merge templates
+    # merge payloads
     self.payload_working = self.mergedicts(self.payload_template,
                                            self.payload_working)
+    self.payload_working = self.mergedicts(self.payload_working,
+                                           payload_init)
 
     self.payload_working["data"] += list(data)
-    if "apply_color_defaults" not in kwargs or kwargs[
-      "apply_color_defaults"] == True:
-      self.apply_default_colors()
 
-    # deal with anything passed from kwargs
-    for key, value in reserved_kwargs.items():
-      if key in self.payload_template:
-        if key in ["colors", "styles", "data"]:
-          l = list(self.payload_working[key])
-          if isinstance(value, (list, tuple)):
-            l += list(value)
-          elif isinstance(value, dict):
-            l.append(value)
-          self.payload_working[key] = list(l)
-        elif key in ["focus", "environment"]:
-          self.payload_working[key] = self.mergedicts(
-            self.payload_template[key],
-            value)
+    if apply_defaults:
+      self.apply_default_colors()
 
   def add_color(self, object_id, color, selection=""):
     self.payload_working["colors"].append(

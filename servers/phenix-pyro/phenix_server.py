@@ -73,18 +73,18 @@ class PhenixServer:
 
   def add_scene(self ,scene_payload ,set_current=True):
     failed = False
-    data_objects = scene_payload["data"]
+    data = scene_payload["data"]
 
 
     scene_id = scene_payload["id"]
     self.scenes[scene_id ] =scene_payload
 
-    for data_object in data_objects:
-      if data_object["id"] not in self.data:
-        self.data[data_object["id"]] = data_object
-
+    for d in data:
+      if d["id"] not in self.data:
+        return False
     if set_current:
       self._current_scene = self.scenes[scene_id]
+    return True
 
   def update_focus(self,focus):
     new_scene = SceneAPI.from_copy(self.current_scene).payload
