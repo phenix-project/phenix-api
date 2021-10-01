@@ -1,6 +1,6 @@
 # Phenix API Documentation
 
-- The goal of this documentation is to define a common interface to run Phenix from multiple frontends (GUIs, notebooks, visualization software, etc.) 
+- Here we aim to define a common interface to run Phenix from multiple frontends (GUIs, notebooks, visualization software, etc.) 
 - The reference implementation uses [Pyro](https://pyro5.readthedocs.io/en/latest/), which provides a huge number of features ready to use. Some highlights:
 	- Pure Python, requests are executed as method calls
 	- Different serializers (serpent, json, marshal, pickle, msgpack)
