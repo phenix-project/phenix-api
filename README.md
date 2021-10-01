@@ -32,6 +32,10 @@
 #### Model data
 A model api response should include all the information necessary to recreate a model on either endpoint. The simplest way to do this is to use one of the existing molecular file formats, or if applicable, a database retrieval. If the server and client do not share a filesystem, the file contents can be encoded as a string. As an example, we will use the file here: servers/phenix-pyro/tests/1aba_pieces.pdb  
 ```Python
+from phenix.api.api_objects import ModelAPI
+
+model_api = ModelAPI(model_obejct)
+model_api.payload
 {
     "id":"8a0bf6f5-f9e1-49ba-91e2-8ef5c67b2911"  # A unique identifier for this model in the Client/Server session
     "object": "model",
