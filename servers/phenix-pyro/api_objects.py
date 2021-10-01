@@ -1,9 +1,10 @@
-from mmtbx.model.model import manager as model_manager
-from iotbx.map_manager import map_manager
-from iotbx.map_model_manager import map_model_manager
 from uuid import uuid4
 import sys
 import copy
+
+from mmtbx.model.model import manager as model_manager
+from iotbx.map_manager import map_manager
+from iotbx.map_model_manager import map_model_manager
 
 if sys.version_info.major == 2:
   from pathlib2 import Path

@@ -1,8 +1,7 @@
-import copy
 import sys
-from uuid import uuid4
+import time
 
-from api_objects import SceneAPI
+from phenix.api.api_objects import SceneAPI
 
 if sys.version_info.major == 2:
   import Pyro4
@@ -14,8 +13,15 @@ else:
   import Pyro5.api
 
 class PhenixServer:
+  """
+  A general server that controls programs, data, and scenes.
+  It may be better to separate out these functions.
+
+  Each time chimerax is launched, a new instance of this class is made, and
+  ChimeraX connects to it.
+  """
   def __init__(self ,*args, **kwargs):
-    self.id = str(uuid4())
+    self.id = str(time.time()).replace(".","")
     # program attributes
     self.tasks = {}
     self.results = {}
@@ -66,7 +72,6 @@ class PhenixServer:
 
 
   def add_scene(self ,scene_payload ,set_current=True):
-    # need to validate payloads
     failed = False
     data_objects = scene_payload["data"]
 
