@@ -1,5 +1,6 @@
 # Installation instructions:
-The goalis to demostrate the Phenix API using ChimeraX as the client
+The goal is to demostrate the Phenix API using ChimeraX as the client
+![alt text](https://github.com/phenix-project/phenix-api/raw/main/Flowchart.png)
 
 ## Instructions
 #### Get a branch of Phenix with preliminary ChimeraX integration
