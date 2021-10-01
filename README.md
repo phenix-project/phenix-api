@@ -32,9 +32,14 @@
 #### Model data
 A model api response should include all the information necessary to recreate a model on either endpoint. The simplest way to do this is to use one of the existing molecular file formats, or if applicable, a database retrieval. If the server and client do not share a filesystem, the file contents can be encoded as a string. As an example, we will use the file here: servers/phenix-pyro/tests/1aba_pieces.pdb  
 ```Python
+from iotbx.data_manager import DataManager
 from phenix.api.api_objects import ModelAPI
 
-model_api = ModelAPI(model_obejct)
+dm = DataManager()
+dm.process_model_file("servers/phenix-pyro/tests/1aba_pieces.pdb")
+model = dm.get_model()
+
+model_api = ModelAPI(model)
 model_api.payload
 {
     "id":"8a0bf6f5-f9e1-49ba-91e2-8ef5c67b2911"  # A unique identifier for this model in the Client/Server session
@@ -55,8 +60,18 @@ model_api.payload
       "suffix": ".mmcif"
     },
   }
-
 ```
+The payload is the API dictionary representation of the complex object. In this case the object 'model' is an instance of mmtbx.model.model.manager. The payload dictionary is the value returned from the server if requesting data:
+```Python
+from phenix.api.phenix_server import PhenixServer
+
+phenix_server = PhenixServer()
+phenix_server.add_data(model_api.payload)
+payload = phenix_server.retrieve_data(id=model_api.payload["id"])
+assert payload == model_api.payload
+```
+Note that this example doesn't use Pyro, but the API would be the same. All the Pyro library does is make the phenix_server method calls happen over a network.
+
 #### Map Data
 In most cases, the client and server will share a filesystem. So the server should prefer to populate the "read_filepath" attribute and the client should prefer to read files from disk. 
 
