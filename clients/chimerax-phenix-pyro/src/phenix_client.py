@@ -30,7 +30,6 @@ class PhenixClient():
     self.tool = tool
     self.settings = defaultdict(None)
     session = tool.session
-    session.logger.info("Initializing Client")
     session.phenix_client = self
     self.session = session
 
